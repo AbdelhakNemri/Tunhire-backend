@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  # Base de données PostgreSQL partagée (mais isolée logiquement)
+  postgres:
+    image: postgres:15-alpine
+    container_name: pfe_postgres
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password123
+      # Par défaut, Postgres crée une seule DB, on utilisera un script pour en faire 2
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d # Script d'init auto
+    networks:
+      - pfe-network
+
+  # Optionnel : Interface graphique pour voir vos données (Adminer ou PgAdmin)
+  adminer:
+    image: adminer
+    ports:
+      - "8080:8080"
+    networks:
+      - pfe-network
+
+networks:
+  pfe-network:
+    driver: bridge
